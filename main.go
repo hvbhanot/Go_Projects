@@ -33,15 +33,14 @@ func createEvents(ctx *gin.Context) {
 	var event Modals.Event
 	err := ctx.ShouldBindJSON(&event)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"Message": "Couldn't parse the data"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Couldn't parse the data"})
 		return
 	}
-	event.ID = 1
-	event.UserID = 1
+
 	err = event.SaveNewEvent()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create event, Try again later !!"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create event, try again later!"})
 		return
 	}
-	ctx.JSON(http.StatusCreated, gin.H{"Message": "Event created", "Event": event})
+	ctx.JSON(http.StatusCreated, gin.H{"message": "Event created", "event": event})
 }
