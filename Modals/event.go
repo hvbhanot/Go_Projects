@@ -2,8 +2,7 @@ package Modals
 
 import (
 	"RestAPI/db"
-	"database/sql"
-	"log"
+	"fmt"
 	"time"
 )
 
@@ -16,56 +15,39 @@ type Event struct {
 	UserID      int
 }
 
-var events []Event
+func (e Event) SaveNewEvent() error {
+	query := `INSERT INTO events (
+       name,
+       description,
+       location,
+       dateTime,
+       user_id
+   ) VALUES (?, ?, ?, ?, ?)`
 
-func (e *Event) SaveNewEvent() error {
-	query := `INSERT INTO events(
-                   name,
-                   description,
-                   location,
-                   dateTime,	
-                   userID )
-                 
-                 VALUES (?,?,?,?,?)   
-                   
-`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		return err
 	}
-	defer func() {
-		closeErr := stmt.Close()
-		if closeErr != nil {
-			log.Printf("Error closing statement: %v", closeErr)
-		}
-	}()
+
+	defer stmt.Close()
 
 	result, err := stmt.Exec(e.Name, e.Description, e.Location, e.DateTime, e.UserID)
 	if err != nil {
 		return err
 	}
-
-	id, err := result.LastInsertId()
-	if err != nil {
-		return err
-	}
-
+	id, err1 := result.LastInsertId()
 	e.ID = id
-	return nil
+
+	return err1
 }
 
 func GetAllEvents() ([]Event, error) {
 	query := "SELECT * FROM events"
 	rows, err := db.DB.Query(query)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-
-		}
-	}(rows)
+	defer rows.Close()
 
 	var events []Event
 
@@ -77,5 +59,33 @@ func GetAllEvents() ([]Event, error) {
 		}
 		events = append(events, event)
 	}
+
 	return events, nil
+}
+
+func GetEventByID(id int64) (*Event, error) {
+	query := "SELECT * FROM events WHERE id = ?"
+	row := db.DB.QueryRow(query, id)
+
+	var event Event
+	err := row.Scan(&event.ID, &event.Name, &event.Description, &event.Location, &event.DateTime, &event.UserID)
+	if err != nil {
+		return nil, err
+	}
+	return &event, nil
+}
+
+func (event Event) Update() error {
+	query := `UPDATE events
+              SET name = ?, description = ?, location = ?, dateTime = ?, user_id = ?
+              WHERE id = ?`
+
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(event.ID, event.Name, event.Description, event.Location, event.DateTime, event.UserID)
+	return err
 }
