@@ -10,3 +10,6 @@ Middleware Support: Includes authentication, logging, and error handling middlew
 Environment Configuration: Easy configuration through environment variables.
 Unit Testing: Comprehensive unit tests to ensure code reliability.
 
+
+Clone the Repository:
+git clone [https://github.com/username/repo-name.githttps://github.com/hvbhanot/RestAPI](https://github.com/hvbhanot/RestAPI)
