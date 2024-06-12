@@ -16,4 +16,4 @@ This repository contains a REST API built using Golang and the Gin framework. Th
 To get started with this project, clone the repository using the following command:
 
 ```bash
-git clone https://github.com/username/repo-name.git
+git clone https://github.com/hvbhanot/RestAPI
