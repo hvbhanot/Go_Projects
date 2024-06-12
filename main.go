@@ -10,10 +10,12 @@ import (
 func main() {
 	db.InitDB()
 	server := gin.Default()
+
 	routes.RegisterRoutes(server)
-	err := server.Run(":8080") // localhost:8080
+
+	err := server.Run(":8080")
 	if err != nil {
 		fmt.Println(err)
 		return
-	}
+	} // localhost:8080
 }

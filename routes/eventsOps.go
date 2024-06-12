@@ -7,69 +7,75 @@ import (
 	"strconv"
 )
 
-func getEvents(ctx *gin.Context) {
-	events, err := Modals.GetAllEvents()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch events try again later"})
-		return
-	}
-	ctx.JSON(http.StatusOK, events)
+func getEvents(context *gin.Context) {
 }
 
-func createEvents(ctx *gin.Context) {
-	var event Modals.Event
-	err := ctx.ShouldBindJSON(&event)
+func getEvent(context *gin.Context) {
+	eventId, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Couldn't parse the data"})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse event id."})
 		return
 	}
 
-	err = event.SaveNewEvent()
+	event, err := models.GetEventByID(eventId)
+
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create event, try again later!"})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch event."})
 		return
 	}
-	ctx.JSON(http.StatusCreated, gin.H{"message": "Event created", "event": event})
+
+	context.JSON(http.StatusOK, event)
 }
 
-func getEvent(ctx *gin.Context) {
-	EventID, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+func createEvent(context *gin.Context) {
+	var event models.Event
+	err := context.ShouldBindJSON(&event)
+
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": ", Could not parse event ID , try again later!"})
-	}
-	event, err := Modals.GetEventByID(EventID)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch ID!"})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request data."})
 		return
 	}
-	ctx.JSON(http.StatusOK, event)
+
+	event.ID = 1
+	event.UserID = 1
+
+	err = event.Save()
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create event. Try again later."})
+		return
+	}
+
+	context.JSON(http.StatusCreated, gin.H{"message": "Event created!", "event": event})
 }
 
-func updateEvent(ctx *gin.Context) {
-	EventID, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+func updateEvent(context *gin.Context) {
+	eventId, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": ", Could not parse event ID , try again later!"})
-		return
-	}
-	_, err = Modals.GetEventByID(EventID)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": ", Could not fetch the event"})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse event id."})
 		return
 	}
 
-	var updatedEvent Modals.Event
-	err = ctx.ShouldBindJSON(&updatedEvent)
+	_, err = models.GetEventByID(eventId)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Couldn't parse the data"})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch the event."})
 		return
 	}
 
-	updatedEvent.ID = EventID
+	var updatedEvent models.Event
+	err = context.ShouldBindJSON(&updatedEvent)
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request data."})
+		return
+	}
+
+	updatedEvent.ID = eventId
 	err = updatedEvent.Update()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Could not update event"})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not update event."})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Event updated successfully"})
+	context.JSON(http.StatusOK, gin.H{"message": "Event updated successfully!"})
 }
