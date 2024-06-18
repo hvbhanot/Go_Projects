@@ -104,5 +104,5 @@ func deleteEvent(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could Not Delete Event"})
 		return
 	}
-	context.JSON(http.StatusOK, gin.H{"message": "Event Deleted"})
+	context.JSON(http.StatusOK, gin.H{"message": ""})
 }
