@@ -59,7 +59,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 [MIT](https://choosealicense.com/licenses/mit/)
 ## Getting Started
 
-To get started with this project, clone the repository using the following command:
+To use this project, clone the repository using the following command:
 
 ```bash
 git clone https://github.com/hvbhanot/RestAPI
