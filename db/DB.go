@@ -5,8 +5,11 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// DB is a global variable of type *sql.DB used for connecting and interacting with a SQLite database. It is initialized and configured in the InitDB() function. It is used in various functions for executing SQL queries, retrieving and saving data to the database.
 var DB *sql.DB
 
+// InitDB initializes the database connection and sets the maximum number of open and idle connections.
+// It creates the necessary tables by calling the createTables function.
 func InitDB() {
 	var err error
 	DB, err = sql.Open("sqlite3", "api.db")
@@ -21,6 +24,7 @@ func InitDB() {
 	createTables()
 }
 
+// createTables creates necessary database tables if they do not exist.
 func createTables() {
 	createUserTable := `CREATE TABLE IF NOT EXISTS users (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,4 +56,15 @@ func createTables() {
 		panic("Could not create events table.")
 	}
 
+	registrations := `CREATE TABLE IF NOT EXISTS registrations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    eventId INTEGER,
+    userId INTEGER,
+    FOREIGN KEY(userId) REFERENCES users(id),
+    FOREIGN KEY(eventId) REFERENCES events(id)
+)`
+	_, err = DB.Exec(registrations)
+	if err != nil {
+		panic("Could not create registration table.")
+	}
 }
